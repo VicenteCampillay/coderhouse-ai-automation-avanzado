@@ -1,0 +1,298 @@
+{
+  "name": "checkpoint1_vicente_campillay",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "## ROL :\n\nEres el encargado de validar las horas extras de consultora. Recibes el reporte de los empleados en un formato de lenguaje natural, sobre horas trabajas fuera del horario habitual y tienes que decidir si corresponde aprobarlas, pedir datos faltantes en caso de ser necesario o escalarlas al área de personas\n\n## ÁMBITO:\nNo tienes autorización para:\n- Aprobar horas que superen el limite de su categoría o contexto.\n- inventar nuevas categorías o limites que no estén definidas.\n- No puedes opinar sobre sueldos, bonos, aguinaldos, adelantos o cualquier tema que no este relacionado a horas extras.\n\n## OBJETIVO:\n\nCada interacción termina en una de estas tres decisiones:\n\n- APROBADO\n- FALTA UN DATO\n- ESCALADO\n\ntoda decisión debe explicarse el porque se esa elección y la cantidad de horas aprobadas.\n\n## REGLAS PARA EL USO DE HERRAMIENTAS:\n\n1. Primero debes decidir a que tipo de hora extra corresponde la descrita por el empleado. (Día, horario y motivo)\n2. Si falta algún dato al respecto, como duración, proyecto o el día de la semana (necesario para saber si es día hábil, sábado, domingo o feriado), NO debes invocar la tool Consultar_Politicas_Horas_Extras todavía. Pasa directo a FALTA_DATO especificando qué dato falta.\n3. Con el tipo de hora extra en cuenta, consulta siempre la tool Consultar_Politicas_Horas_Extras antes de decidir, no respondas de memoria sobre limites y requisitos.\n4. Recién con lo consultado en la tool, compara las horas entregadas por el empleado con las horas limite y revisa si esa tipo de horas extras requiere una autorización previa o código del proyecto.\n5. Si el reporte de la hora extra no corresponde a ningún tipo de las Consultar_Politicas_Horas_Extras (Ejemplo: tramites médicos, no se trabajo o fuera del contexto laboral), debes decirlo explícitamente, no puedes forzarlo a encajar en algún tipo de hora extra.\n6. Puedes responder sobre Horas Extras información sobre limites y caso de uso que puedes obtener de la herramienta Consultar_Politicas_Horas_Extras.\n\n## PROTOCOLO DE ESCALADO:\n\nEscalas cuando:\n- El limite supera las horas permitidas en la categoría o tipo de hora que corresponde.\n- El tipo de hora extra exige autorización previa y el empleado no lo menciona.\n- El tipo de hora extra es ambiguo (Ejemplo: Guardia Pasiva vs trabajo real) o el empleado presiona para que se considere su trabajo fuera de las horas permitidas.\n\n## FORMATO DE RESPUESTA\n\nCuando Escales, debes responder exactamente así, sin texto previo:\nESCALADO: [categoría] · [horas] · [motivo del escalamiento en una frase]\n\nCuando falte un dato, responde exactamente así:\nFALTA_DATO: [qué dato falta específicamente]\n\nCuando apruebes, responde exactamente así:\nAPROBADO: [categoría] · [horas] · [proyecto/motivo]\n\nCuando el reporte no corresponda a ningún tipo de hora extra de la política, responde exactamente así:\nFUERA_DE_POLITICA: [motivo por el cual no aplica ninguna categoría]",
+          "maxIterations": 7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1552,
+        -928
+      ],
+      "id": "e4785d34-c4e3-47c7-8e31-4623a5c208b3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1536,
+        -672
+      ],
+      "id": "911f112c-e652-465c-b9e8-c21d56e4e2b9",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0edf3930-0796-4bc2-9dbb-f31fb6065d07",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        -816
+      ],
+      "id": "5f60a44a-4167-4fcb-9fe8-37cacdc7edb2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1840,
+        -928
+      ],
+      "id": "7bc96380-e415-4988-80e3-ffa5a18610bc",
+      "name": "Chat Trigger",
+      "webhookId": "39e87f59-c9ae-4213-8bb7-26a51075f189"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-5-20250929",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        -1744,
+        -736
+      ],
+      "id": "21253091-ddcb-4559-89bc-0186d1fd6f9a",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "bmKU10aYUlbJQSTJ",
+          "name": "Anthropic account - CoderHouse"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a20c14e8-e70e-4173-9fd3-bf64677add53",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "FALTA_DATO",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1232,
+        -928
+      ],
+      "id": "71cc245e-46d9-4f4a-8668-07bea58514d9",
+      "name": "Contiene Escalado?"
+    },
+    {
+      "parameters": {
+        "sendTo": "vicentecampillaymg@gmail.com",
+        "subject": "Aviso Estado Solicitud - Horas Extras",
+        "emailType": "text",
+        "message": "={{ 'Aviso de Horas Extras Solicitadas\\n\\nResultado:\\n\\n' + $json.output.replace('ESCALADO:', '').trim() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        -1008
+      ],
+      "id": "ea26fc3a-6e91-4274-9dae-2c6ac40195d1",
+      "name": "Log_Observabilidad",
+      "webhookId": "dd6d129d-e157-4ec4-8ae3-470b63cf9881",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pZAVB1mYZnn8fPvF",
+          "name": "Gmail - VicenteC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Usa esta Tool cuando hayas deducido el tipo de horas extra de la rendición del empleado (Hora extra dia habil, Hora extra nocturna, Hora extra sabado, Hora extra domingo, Hora extra feriado, Guardia pasiva, Traslado fuera de horario o Capacitacion fuera de horario) y necesitas confirmar su limite y sus requisitos antes de decidir.\n\nActívala siempre antes de aprobar, pedir un dato o escalar - nunca respondas en base a la memoria sobre topes de horas o si un tipo de hora exige autorización previa.\n\nEsta herramienta consulta la plantilla de políticas de tipo de Hora extra filtrada por la columna Categoría (Pasa ahí el valor que dedujiste, tal cual aparece en la hoja) y\ndevuelve: Limite_Horas, Requiere_Autorizacion_Previa, Requiere_Codigo_Proyecto y Notas.\n\nNo actives esta herramienta si todavía no identificaste una categoría o tipo de hora concreta o si el reporte no corresponde a horas extras (ej. consultas de sueldo, adelantos u otros temas fuera de esta política), en estos casos no hay nada que consultar.\n\nSi el tipo de horas extras que dedujiste no aparece en los resultados, dilo explícitamente y no inventes un limite ni un requisito. No fuerces el reporte dentro un tipo de hora.",
+        "documentId": {
+          "__rl": true,
+          "value": "1Mk9nN3pqJv1tvjitR5RrAO06nqXNFqSQFoAqb9nHBgs",
+          "mode": "list",
+          "cachedResultName": "Politicas_Horas_Extras",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mk9nN3pqJv1tvjitR5RrAO06nqXNFqSQFoAqb9nHBgs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Politicas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mk9nN3pqJv1tvjitR5RrAO06nqXNFqSQFoAqb9nHBgs/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Categoria",
+              "lookupValue": "={{ $fromAI('Categoria','La categoria exacta de la politica de Horas extras', 'string', 'SIN_CATEGORIA') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -1328,
+        -688
+      ],
+      "id": "c744b62c-3019-461f-a164-40ee13532218",
+      "name": "Consultar_Politicas_Horas_Extras",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LHTLe9Ls8mE4BhN3",
+          "name": "Google Sheets - VicenteC"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Contiene Escalado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contiene Escalado?": {
+      "main": [
+        [
+          {
+            "node": "Log_Observabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log_Observabilidad": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar_Politicas_Horas_Extras": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "13d35f93-d085-40d2-8ccd-075596b1936f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4adfb8248a637bb52a45eab840dc805cd709e062fef9162bbbf2332707fb046"
+  },
+  "nodeGroups": [],
+  "id": "j0w8NebFqsfBxEs9",
+  "tags": []
+}
