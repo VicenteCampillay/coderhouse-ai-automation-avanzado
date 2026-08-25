@@ -14,10 +14,6 @@ Un chatbot que recibe el reporte de un empleado sobre horas extras trabajadas y 
  
 Las instrucciones del agente están divididas en secciones claras (quién es, qué no puede hacer, qué debe lograr, y las reglas para decidir) para que sea difícil que se confunda o invente cosas que no están permitidas.
  
-## Detalles pendientes
- 
-- El caso "falta un dato" no queda registrado por correo.
-- Hay una configuración menor en la planilla que puede necesitar ajustarse a mano dentro de n8n.
 ## Archivo entregado
  
 `checkpoint1_vicente_campillay.json`
